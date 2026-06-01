@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
+import cloudinary from "@/lib/cloudinary";
 import type { RowDataPacket } from "mysql2";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
@@ -24,6 +25,39 @@ function safePdfName(name: string) {
     .replace(/[^a-zA-Z0-9._-]/g, "_")
     .replace(/_+/g, "_")
     .slice(0, 80);
+}
+
+function hasCloudinaryConfig() {
+  return Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  );
+}
+
+async function saveInvoicePdf(invoiceFile: File, idPago: number) {
+  const uploadedName = safePdfName(invoiceFile.name || `FACT-${String(idPago).padStart(5, "0")}.pdf`);
+  const pdfName = uploadedName.endsWith(".pdf") ? uploadedName : `${uploadedName}.pdf`;
+  const facturaFile = `${String(idPago).padStart(5, "0")}-${Date.now()}-${pdfName}`;
+  const buffer = Buffer.from(await invoiceFile.arrayBuffer());
+
+  if (hasCloudinaryConfig()) {
+    const dataUri = `data:application/pdf;base64,${buffer.toString("base64")}`;
+    const uploadResponse = await cloudinary.uploader.upload(dataUri, {
+      folder: "tramites/facturas",
+      public_id: facturaFile.replace(/\.pdf$/i, ""),
+      resource_type: "auto",
+      use_filename: true,
+      unique_filename: false,
+    });
+
+    return uploadResponse.secure_url;
+  }
+
+  const facturaDir = join(process.cwd(), "public", "facturas");
+  await mkdir(facturaDir, { recursive: true });
+  await writeFile(join(facturaDir, facturaFile), buffer);
+  return `/facturas/${facturaFile}`;
 }
 
 async function ensureWorkflowStates(connection: any) {
@@ -117,12 +151,7 @@ export async function POST(request: Request) {
       );
 
       const numeroFactura = `FAC-${Date.now()}`;
-      const facturaDir = join(process.cwd(), "public", "facturas");
-      await mkdir(facturaDir, { recursive: true });
-      const uploadedName = safePdfName(invoiceFile.name || `FACT-${String(id_pago).padStart(5, "0")}.pdf`);
-      const facturaFile = `${String(id_pago).padStart(5, "0")}-${Date.now()}-${uploadedName.endsWith(".pdf") ? uploadedName : `${uploadedName}.pdf`}`;
-      const pdfPath = `/facturas/${facturaFile}`;
-      await writeFile(join(facturaDir, facturaFile), Buffer.from(await invoiceFile.arrayBuffer()));
+      const pdfPath = await saveInvoicePdf(invoiceFile, id_pago);
 
       await connection.query(
         `INSERT INTO univalle_tramites.facturas
