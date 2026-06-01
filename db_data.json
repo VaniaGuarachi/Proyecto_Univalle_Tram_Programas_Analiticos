@@ -1,0 +1,76 @@
+{
+  "usuarios": [
+    {
+      "id_usuario": 1,
+      "codigo_login": "grv0034444",
+      "password_hash": "123456",
+      "estado": "ACTIVO"
+    },
+    {
+      "id_usuario": 2,
+      "codigo_login": "caj001",
+      "password_hash": "123456",
+      "estado": "ACTIVO"
+    },
+    {
+      "id_usuario": 3,
+      "codigo_login": "bib001",
+      "password_hash": "123456",
+      "estado": "ACTIVO"
+    },
+    {
+      "id_usuario": 4,
+      "codigo_login": "tram001",
+      "password_hash": "123456",
+      "estado": "ACTIVO"
+    },
+    {
+      "id_usuario": 5,
+      "codigo_login": "admin001",
+      "password_hash": "123456",
+      "estado": "ACTIVO"
+    }
+  ],
+  "roles": [
+    {
+      "id_usuario_rol": 1,
+      "id_usuario": 1,
+      "id_rol": 1,
+      "rol_principal": 1,
+      "estado": "ACTIVO",
+      "fecha_asignacion": "2026-03-24T07:33:51.000Z"
+    },
+    {
+      "id_usuario_rol": 2,
+      "id_usuario": 2,
+      "id_rol": 2,
+      "rol_principal": 1,
+      "estado": "ACTIVO",
+      "fecha_asignacion": "2026-03-24T07:33:51.000Z"
+    },
+    {
+      "id_usuario_rol": 3,
+      "id_usuario": 3,
+      "id_rol": 3,
+      "rol_principal": 1,
+      "estado": "ACTIVO",
+      "fecha_asignacion": "2026-03-24T07:33:51.000Z"
+    },
+    {
+      "id_usuario_rol": 4,
+      "id_usuario": 4,
+      "id_rol": 4,
+      "rol_principal": 1,
+      "estado": "ACTIVO",
+      "fecha_asignacion": "2026-03-24T07:33:51.000Z"
+    },
+    {
+      "id_usuario_rol": 5,
+      "id_usuario": 5,
+      "id_rol": 5,
+      "rol_principal": 1,
+      "estado": "ACTIVO",
+      "fecha_asignacion": "2026-03-24T07:33:51.000Z"
+    }
+  ]
+}
