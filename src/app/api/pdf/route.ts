@@ -12,7 +12,15 @@ function localPublicPath(src: string) {
 
 export async function GET(request: Request) {
   try {
-    const src = new URL(request.url).searchParams.get("src");
+    const url = new URL(request.url);
+    const src = url.searchParams.get("src");
+    const shouldDownload = url.searchParams.get("download") === "1";
+    const rawFilename = url.searchParams.get("filename") || "documento.pdf";
+    const filename = rawFilename
+      .replace(/[^\w.-]+/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .replace(/\.pdf$/i, "") + ".pdf";
     if (!src) {
       return NextResponse.json({ error: "PDF no especificado" }, { status: 400 });
     }
@@ -39,7 +47,7 @@ export async function GET(request: Request) {
     return new NextResponse(new Uint8Array(bytes), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": "inline",
+        "Content-Disposition": `${shouldDownload ? "attachment" : "inline"}; filename="${filename}"`,
         "Cache-Control": "private, max-age=300",
       },
     });

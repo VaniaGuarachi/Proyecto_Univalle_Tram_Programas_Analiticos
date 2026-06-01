@@ -21,6 +21,7 @@ type TramiteResultado = {
   numero_documento: string | null;
   codigo_verificacion: string | null;
   ruta_pdf_firmado: string | null;
+  ruta_pdf_descarga: string | null;
 };
 
 function formatDate(value: string | null) {
@@ -175,10 +176,21 @@ export function TramiteSearch() {
                           {tramite.estado_descripcion || tramite.descripcion || "Solicitud registrada en el sistema institucional."}
                         </p>
                       </div>
-                      <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-wider text-emerald-700 ring-1 ring-emerald-200">
-                        <CheckCircle2 className="h-4 w-4" />
-                        {tramite.estado}
-                      </span>
+                      <div className="flex flex-col gap-2 sm:items-end">
+                        <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-wider text-emerald-700 ring-1 ring-emerald-200">
+                          <CheckCircle2 className="h-4 w-4" />
+                          {tramite.estado}
+                        </span>
+                        {tramite.ruta_pdf_descarga && (
+                          <a
+                            href={tramite.ruta_pdf_descarga}
+                            className="inline-flex h-11 items-center justify-center rounded-xl bg-univalle-primary px-4 text-sm font-black text-white shadow-lg shadow-univalle-primary/15 hover:-translate-y-0.5 hover:bg-slate-900"
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Descargar PDF
+                          </a>
+                        )}
+                      </div>
                     </div>
 
                     <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -201,12 +213,9 @@ export function TramiteSearch() {
                               Número: {tramite.numero_documento || "Pendiente"} · Verificación: {tramite.codigo_verificacion || "Pendiente"}
                             </p>
                           </div>
-                          {tramite.ruta_pdf_firmado && (
+                          {tramite.ruta_pdf_descarga && (
                             <a
-                              href={tramite.ruta_pdf_firmado}
-                              download
-                              target="_blank"
-                              rel="noopener noreferrer"
+                              href={tramite.ruta_pdf_descarga}
                               className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-900 px-4 text-sm font-black text-white shadow-lg shadow-slate-900/10 hover:-translate-y-0.5 hover:bg-univalle-primary"
                             >
                               <Download className="mr-2 h-4 w-4" />

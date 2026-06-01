@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "mysql2";
 import { pool } from "@/lib/db";
+import { pdfDownloadUrl, pdfViewerUrl } from "@/lib/pdfUrl";
 
 interface TramiteBusquedaRow extends RowDataPacket {
   id_tramite: number;
@@ -25,6 +26,7 @@ interface TramiteBusquedaRow extends RowDataPacket {
 
 function uploadPath(path: string | null) {
   if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
   return path.startsWith("/") ? path : `/uploads/${path}`;
 }
 
@@ -89,11 +91,18 @@ export async function GET(request: Request) {
       );
     }
 
+    const pdfUrl = pdfViewerUrl(uploadPath(rows[0].ruta_pdf_firmado));
+    const pdfDownload = pdfDownloadUrl(
+      uploadPath(rows[0].ruta_pdf_firmado),
+      rows[0].numero_documento || `documento-${rows[0].id_tramite}`
+    );
+
     return NextResponse.json({
       found: true,
       tramite: {
         ...rows[0],
-        ruta_pdf_firmado: uploadPath(rows[0].ruta_pdf_firmado),
+        ruta_pdf_firmado: pdfUrl,
+        ruta_pdf_descarga: pdfDownload,
       },
     });
   } catch (error) {
