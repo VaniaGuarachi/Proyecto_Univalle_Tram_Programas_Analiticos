@@ -1,0 +1,123 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# ============================================================
+# 🔐 ARCHIVOS SENSIBLES - NUNCA SUBIR A GITHUB
+# ============================================================
+
+# Variables de entorno (contraseñas, claves API, secretos)
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.*
+
+# Claves privadas y certificados SSL/TLS
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+*.csr
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# Archivos de configuración con credenciales
+secrets.json
+secrets.yaml
+secrets.yml
+config/secrets.*
+*.secret
+
+# Configuración de bases de datos con credenciales
+database.yml
+database.yaml
+db.json
+
+# Tokens y credenciales de servicios en la nube
+.aws/
+.gcp/
+google-credentials.json
+service-account*.json
+firebase-adminsdk*.json
+firebase-config.json
+
+# ============================================================
+# 📦 DEPENDENCIAS
+# ============================================================
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ============================================================
+# 🧪 TESTING
+# ============================================================
+/coverage
+.nyc_output
+
+# ============================================================
+# ⚙️ NEXT.JS
+# ============================================================
+/.next/
+/out/
+
+# ============================================================
+# 🏗️ PRODUCCIÓN / BUILD
+# ============================================================
+/build
+/dist
+
+# ============================================================
+# 🗂️ VARIOS / SISTEMA
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.temp
+*.bak
+*.swp
+*.log
+
+# ============================================================
+# 🐛 LOGS DE DEBUG
+# ============================================================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+logs/
+*.log
+
+# ============================================================
+# 🌐 VERCEL / HOSTING
+# ============================================================
+.vercel
+
+# ============================================================
+# 📝 TYPESCRIPT
+# ============================================================
+*.tsbuildinfo
+next-env.d.ts
+
+# ============================================================
+# 🛠️ IDEs Y EDITORES
+# ============================================================
+.vscode/settings.json
+.idea/
+*.suo
+*.user
+*.iml
+.project
+.classpath
