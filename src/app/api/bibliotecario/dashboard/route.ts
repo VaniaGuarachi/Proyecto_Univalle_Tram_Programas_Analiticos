@@ -32,8 +32,11 @@ const BASE_SELECT = `
   LEFT JOIN univalle_tramites.carreras c     ON e.id_carrera       = c.id_carrera
 `;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const limit = Math.min(Math.max(Number(searchParams.get("limit") || 100), 1), 300);
+
     const [[stats], [pendientes], [verificados]]: any = await Promise.all([
       pool.query(`
         SELECT 
@@ -42,7 +45,7 @@ export async function GET() {
           SUM(CASE WHEN estado_solvencia = 'CON_DEUDAS'             THEN 1 ELSE 0 END) AS conDeudas
         FROM univalle_tramites.solvencias
       `),
-      pool.query(BASE_SELECT + `WHERE s.estado_solvencia = 'PENDIENTE_VERIFICACION' ORDER BY s.fecha_solicitud DESC`),
+      pool.query(BASE_SELECT + `WHERE s.estado_solvencia = 'PENDIENTE_VERIFICACION' ORDER BY s.fecha_solicitud DESC LIMIT ?`, [limit]),
       pool.query(BASE_SELECT + `WHERE s.estado_solvencia IN ('SIN_DEUDAS', 'CON_DEUDAS') ORDER BY s.fecha_resolucion DESC LIMIT 20`),
     ]);
 

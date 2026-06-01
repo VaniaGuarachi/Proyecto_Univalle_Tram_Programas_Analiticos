@@ -37,8 +37,11 @@ interface PagoRow extends RowDataPacket {
   biblioteca_estado: string | null;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const limit = Math.min(Math.max(Number(searchParams.get("limit") || 100), 1), 300);
+
     // 1. Estadísticas para la vista de pagos
     const [stats] = await pool.query<StatsRow[]>(`
       SELECT 
@@ -89,7 +92,8 @@ export async function GET() {
       LEFT JOIN univalle_tramites.solvencias s ON s.id_tramite = t.id_tramite
       WHERE s.id_solvencia IS NULL OR s.estado_solvencia <> 'PENDIENTE_VERIFICACION'
       ORDER BY p.fecha_generacion DESC
-    `);
+      LIMIT ?
+    `, [limit]);
 
     return NextResponse.json({
       stats: stats[0] || { pendientes: 0, aceptados: 0, enviados: 0, total: 0 },

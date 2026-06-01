@@ -34,18 +34,21 @@ const roleNavigation: Record<NonNullable<Role>, { name: string; href: string; ic
   ],
   TRAMITES: [
     { name: "Dashboard", href: "/tramites/v2", icon: Home },
-    { name: "Historial", href: "/tramites/historial", icon: ClipboardList },
+    { name: "Historial", href: "/tramites/v2?tab=historial", icon: ClipboardList },
   ],
 };
 
 export default function PublicHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isAuthenticated, login, logout } = useAuthStore();
+  const { user, isAuthenticated, _hasHydrated, login, logout } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
+    if (!_hasHydrated || authChecked || isAuthenticated) return;
+
     const checkAuth = async () => {
       try {
         const response = await fetch("/api/auth/verify", { credentials: "include" });
@@ -63,11 +66,13 @@ export default function PublicHeader() {
         }
       } catch {
         // La cabecera publica puede mostrarse sin sesion.
+      } finally {
+        setAuthChecked(true);
       }
     };
 
     checkAuth();
-  }, [login, pathname]);
+  }, [_hasHydrated, authChecked, isAuthenticated, login]);
 
   const userName = user ? `${user.nombres} ${user.apellidos}`.trim() : "Usuario";
   const initials = useMemo(() => {

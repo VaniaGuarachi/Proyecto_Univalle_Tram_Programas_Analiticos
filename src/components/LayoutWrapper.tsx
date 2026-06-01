@@ -22,12 +22,18 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
       pathname?.startsWith("/tramites")) &&
     !pathname?.startsWith("/tramites/v2");
   const shouldRedirectToLogin = isPrivateRoute && _hasHydrated && sessionChecked && !isAuthenticated;
-  const isCheckingPrivateSession = isPrivateRoute && (!_hasHydrated || !sessionChecked);
+  const isCheckingPrivateSession =
+    isPrivateRoute && (!_hasHydrated || (!isAuthenticated && !sessionChecked));
 
   useEffect(() => {
     if (!_hasHydrated) return;
 
     if (!isPrivateRoute) {
+      setSessionChecked(true);
+      return;
+    }
+
+    if (isAuthenticated) {
       setSessionChecked(true);
       return;
     }

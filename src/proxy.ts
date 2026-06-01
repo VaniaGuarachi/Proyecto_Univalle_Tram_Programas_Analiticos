@@ -18,6 +18,15 @@ const roleHome: Record<string, string> = {
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  if (pathname === "/tramites/dashboard" || pathname === "/tramites/revision") {
+    return NextResponse.redirect(new URL("/tramites/v2", request.url));
+  }
+
+  if (pathname === "/tramites/historial") {
+    return NextResponse.redirect(new URL("/tramites/v2?tab=historial", request.url));
+  }
+
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   if (!isProtectedRoute) {

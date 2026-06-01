@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const limit = Math.min(Math.max(Number(searchParams.get('limit') || 100), 1), 300);
+
     // Todos los trámites completados/finalizados con info del estudiante
     const [rows]: any = await pool.query(`
       SELECT
@@ -25,7 +28,8 @@ export async function GET() {
       WHERE et.codigo IN ('FINALIZADO','COMPLETADO','EMITIDO')
         AND t.estado_registro = 'ACTIVO'
       ORDER BY t.fecha_solicitud DESC
-    `);
+      LIMIT ?
+    `, [limit]);
 
     return NextResponse.json({ historial: rows || [] });
 

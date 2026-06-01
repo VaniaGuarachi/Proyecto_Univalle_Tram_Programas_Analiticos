@@ -16,6 +16,13 @@ const roleToPath: Record<string, string> = {
   TRAMITES: "/tramites/v2",
 };
 
+const roleRoutePrefix: Record<string, string> = {
+  ESTUDIANTE: "/estudiante",
+  CAJERO: "/cajero",
+  BIBLIOTECARIO: "/bibliotecario",
+  TRAMITES: "/tramites",
+};
+
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -64,8 +71,13 @@ export default function LoginForm() {
 
       const from = searchParams.get("from");
       const fallbackPath = roleToPath[user.rol] || "/estudiante/dashboard";
+      const expectedPrefix = roleRoutePrefix[user.rol];
       const safeTarget =
-        from && from.startsWith("/") && !from.startsWith("/login") && !from.startsWith("/auth/login")
+        from &&
+        from.startsWith("/") &&
+        !from.startsWith("/login") &&
+        !from.startsWith("/auth/login") &&
+        (!expectedPrefix || from.startsWith(expectedPrefix))
           ? from
           : fallbackPath;
       router.push(safeTarget);

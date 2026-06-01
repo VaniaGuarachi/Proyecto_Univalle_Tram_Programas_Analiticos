@@ -30,8 +30,8 @@ const ROLE_MENUS: Record<string, { label: string; href: string; icon: React.Reac
     { label: "Historial", href: "/bibliotecario/historial", icon: <FileText size={20} /> },
   ],
   TRAMITES: [
-    { label: "Inicio",    href: "/tramites/dashboard", icon: <Home size={20} /> },
-    { label: "Historial", href: "/tramites/historial",  icon: <FileText size={20} /> },
+    { label: "Inicio",    href: "/tramites/v2", icon: <Home size={20} /> },
+    { label: "Historial", href: "/tramites/v2?tab=historial",  icon: <FileText size={20} /> },
   ]
 };
 

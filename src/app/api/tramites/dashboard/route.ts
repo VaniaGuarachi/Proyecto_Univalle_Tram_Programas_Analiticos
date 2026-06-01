@@ -6,6 +6,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const search  = searchParams.get('search')  || '';
     const carrera = searchParams.get('carrera') || '';
+    const limit = Math.min(Math.max(Number(searchParams.get('limit') || 100), 1), 300);
 
     // 1. Stats globales
     const [statsRows]: any = await pool.query(`
@@ -69,7 +70,8 @@ export async function GET(request: Request) {
       params.push(Number(carrera));
     }
 
-    estudiantesQuery += ` GROUP BY e.id_estudiante ORDER BY ultima_actividad DESC`;
+    estudiantesQuery += ` GROUP BY e.id_estudiante ORDER BY ultima_actividad DESC LIMIT ?`;
+    params.push(limit);
 
     const [estudiantes]: any = await pool.query(estudiantesQuery, params);
 

@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import TramitesDashboard from './pages/08_Tramites_Dashboard';
 import TramitesEstudiante from './pages/09_Tramites_Estudiante';
 import TramiteRevision from './pages/11_Tramite_Revision';
 import { EstudianteConTramites, Tramite } from './types';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
 
 type ViewID = '08' | '09' | '11';
@@ -21,10 +21,12 @@ type FinalizePayload = {
   success: boolean;
 };
 
-export default function TramitesV2Page() {
+function TramitesV2Content() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialMenu: ActiveMenu = searchParams.get('tab') === 'historial' ? 'Historial' : 'Inicio';
   const [activeView, setActiveView] = useState<ViewID>('08');
-  const [activeMenu, setActiveMenu] = useState<ActiveMenu>('Inicio');
+  const [activeMenu, setActiveMenu] = useState<ActiveMenu>(initialMenu);
   
   const [selectedEstudiante, setSelectedEstudiante] = useState<EstudianteConTramites | null>(null);
   const [selectedTramite, setSelectedTramite] = useState<Tramite | null>(null);
@@ -137,6 +139,7 @@ export default function TramitesV2Page() {
           onMenuChange={(menu) => {
             setActiveMenu(menu as ActiveMenu);
             setActiveView('08');
+            router.replace(menu === 'Historial' ? '/tramites/v2?tab=historial' : '/tramites/v2');
           }}
           userType="tramite"
         />
@@ -172,5 +175,13 @@ export default function TramitesV2Page() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function TramitesV2Page() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#f4f6fa]" />}>
+      <TramitesV2Content />
+    </Suspense>
   );
 }
