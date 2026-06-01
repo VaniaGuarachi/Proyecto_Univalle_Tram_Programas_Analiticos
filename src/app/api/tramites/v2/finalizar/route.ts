@@ -3,6 +3,7 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { pool } from "@/lib/db";
+import cloudinary from "@/lib/cloudinary";
 import { generateFinalDocumentPdf, type FinalDocumentAttachment } from "@/lib/finalDocumentPdf";
 
 interface TramiteRow extends RowDataPacket {
@@ -34,6 +35,14 @@ type FirmaPayload = {
 interface PdfRow extends RowDataPacket {
   nombre_archivo: string;
   ruta_archivo: string;
+}
+
+function hasCloudinaryConfig() {
+  return Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  );
 }
 
 async function ensureSchema() {
@@ -87,11 +96,26 @@ async function ensureSchema() {
 
 async function savePdf(file: File, idTramite: string) {
   if (file.type !== "application/pdf") throw new Error("Solo se permiten archivos PDF.");
-  const uploadDir = join(process.cwd(), "public", "uploads", "emision");
-  await mkdir(uploadDir, { recursive: true });
   const safeName = file.name.replace(/[^\w.\-]+/g, "_");
   const fileName = `${Date.now()}-${idTramite}-${safeName}`;
-  await writeFile(join(uploadDir, fileName), Buffer.from(await file.arrayBuffer()));
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  if (hasCloudinaryConfig()) {
+    const dataUri = `data:application/pdf;base64,${buffer.toString("base64")}`;
+    const uploadResponse = await cloudinary.uploader.upload(dataUri, {
+      folder: "tramites/emision",
+      public_id: fileName.replace(/\.pdf$/i, ""),
+      resource_type: "raw",
+      use_filename: true,
+      unique_filename: false,
+    });
+
+    return { name: file.name, path: uploadResponse.secure_url, size: file.size };
+  }
+
+  const uploadDir = join(process.cwd(), "public", "uploads", "emision");
+  await mkdir(uploadDir, { recursive: true });
+  await writeFile(join(uploadDir, fileName), buffer);
   return { name: file.name, path: `emision/${fileName}`, size: file.size };
 }
 

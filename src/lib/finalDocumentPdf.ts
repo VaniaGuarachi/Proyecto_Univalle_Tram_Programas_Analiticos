@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import QRCode from "qrcode";
+import cloudinary from "@/lib/cloudinary";
 
 export type FinalDocumentData = {
   idTramite: string;
@@ -64,12 +65,33 @@ function publicFilePath(path: string | null | undefined) {
   return join(process.cwd(), "public", "uploads", normalized);
 }
 
+function hasCloudinaryConfig() {
+  return Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  );
+}
+
 async function imageBytesFromSource(source: string | null | undefined) {
   if (!source) return null;
   if (source.startsWith("data:")) {
     const [, base64] = source.split(",");
     return base64 ? Buffer.from(base64, "base64") : null;
   }
+  const filePath = publicFilePath(source);
+  if (!filePath || !existsSync(filePath)) return null;
+  return readFile(filePath);
+}
+
+async function pdfBytesFromSource(source: string | null | undefined) {
+  if (!source) return null;
+  if (/^https?:\/\//i.test(source)) {
+    const response = await fetch(source);
+    if (!response.ok) throw new Error(`No se pudo descargar el PDF adjunto: ${response.status}`);
+    return Buffer.from(await response.arrayBuffer());
+  }
+
   const filePath = publicFilePath(source);
   if (!filePath || !existsSync(filePath)) return null;
   return readFile(filePath);
@@ -96,11 +118,11 @@ async function drawImageIfPossible(pdfDoc: PDFDocument, page: ReturnType<PDFDocu
 }
 
 async function appendPdf(pdfDoc: PDFDocument, attachment: FinalDocumentAttachment) {
-  const filePath = publicFilePath(attachment.path);
-  if (!filePath || !existsSync(filePath)) {
+  const bytes = await pdfBytesFromSource(attachment.path);
+  if (!bytes) {
     throw new Error(`No se encontr\u00f3 el PDF adjunto: ${attachment.name}`);
   }
-  const sourceDoc = await PDFDocument.load(await readFile(filePath));
+  const sourceDoc = await PDFDocument.load(bytes);
   const pages = await pdfDoc.copyPages(sourceDoc, sourceDoc.getPageIndices());
   pages.forEach((page) => pdfDoc.addPage(page));
 }
@@ -187,7 +209,25 @@ export async function generateFinalDocumentPdf(data: FinalDocumentData) {
   const finalDir = join(process.cwd(), "public", "uploads", "emision");
   await mkdir(finalDir, { recursive: true });
   const fileName = `final-${data.idTramite}-${Date.now()}.pdf`;
-  await writeFile(join(finalDir, fileName), await pdfDoc.save());
+  const bytes = await pdfDoc.save();
+  await writeFile(join(finalDir, fileName), bytes);
+
+  if (hasCloudinaryConfig()) {
+    const dataUri = `data:application/pdf;base64,${Buffer.from(bytes).toString("base64")}`;
+    const uploadResponse = await cloudinary.uploader.upload(dataUri, {
+      folder: "tramites/documentos",
+      public_id: fileName.replace(/\.pdf$/i, ""),
+      resource_type: "raw",
+      use_filename: true,
+      unique_filename: false,
+    });
+
+    return {
+      path: uploadResponse.secure_url,
+      publicUrl: uploadResponse.secure_url,
+    };
+  }
+
   return {
     path: `emision/${fileName}`,
     publicUrl: `/uploads/emision/${fileName}`,

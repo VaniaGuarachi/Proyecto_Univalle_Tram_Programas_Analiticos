@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
+import { pdfViewerUrl } from '@/lib/pdfUrl';
 
 export async function GET(
   request: Request,
@@ -120,8 +121,16 @@ export async function GET(
       documento.observaciones = tramite.tramite_descripcion;
     }
     
-    if (documento && documento.ruta_pdf_firmado && !documento.ruta_pdf_firmado.startsWith('/')) {
+    if (
+      documento &&
+      documento.ruta_pdf_firmado &&
+      !documento.ruta_pdf_firmado.startsWith('/') &&
+      !/^https?:\/\//i.test(documento.ruta_pdf_firmado)
+    ) {
       documento.ruta_pdf_firmado = '/uploads/' + documento.ruta_pdf_firmado;
+    }
+    if (documento) {
+      documento.ruta_pdf_firmado = pdfViewerUrl(documento.ruta_pdf_firmado);
     }
 
     return NextResponse.json({
@@ -135,7 +144,7 @@ export async function GET(
         direccion: pago.direccion,
         correo_envio: pago.correo_envio,
         monto_total: pago.factura_monto_total,
-        ruta_pdf_factura: pago.ruta_pdf_factura,
+        ruta_pdf_factura: pdfViewerUrl(pago.ruta_pdf_factura),
       } : null,
       solvencia: {
         ...solvencia,

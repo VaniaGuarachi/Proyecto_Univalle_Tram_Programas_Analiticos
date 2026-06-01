@@ -46,7 +46,7 @@ async function saveInvoicePdf(invoiceFile: File, idPago: number) {
     const uploadResponse = await cloudinary.uploader.upload(dataUri, {
       folder: "tramites/facturas",
       public_id: facturaFile.replace(/\.pdf$/i, ""),
-      resource_type: "auto",
+      resource_type: "raw",
       use_filename: true,
       unique_filename: false,
     });

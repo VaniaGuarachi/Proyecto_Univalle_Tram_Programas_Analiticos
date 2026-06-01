@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
+import { pdfViewerUrl } from '@/lib/pdfUrl';
 import type { RowDataPacket } from 'mysql2';
 
 interface TramiteRow extends RowDataPacket {
@@ -93,9 +94,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json(rows.map((row) => ({
       ...row,
-      ruta_pdf_firmado: row.ruta_pdf_firmado && !row.ruta_pdf_firmado.startsWith("/")
-        ? `/uploads/${row.ruta_pdf_firmado}`
-        : row.ruta_pdf_firmado,
+      ruta_pdf_firmado: pdfViewerUrl(
+        row.ruta_pdf_firmado && !row.ruta_pdf_firmado.startsWith("/") && !/^https?:\/\//i.test(row.ruta_pdf_firmado)
+          ? `/uploads/${row.ruta_pdf_firmado}`
+          : row.ruta_pdf_firmado
+      ),
+      ruta_pdf_factura: pdfViewerUrl(row.ruta_pdf_factura),
     })));
 
   } catch (error: unknown) {

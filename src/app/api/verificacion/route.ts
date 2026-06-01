@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "mysql2";
 import { pool } from "@/lib/db";
+import { pdfViewerUrl } from "@/lib/pdfUrl";
 
 interface DocumentoRow extends RowDataPacket {
   id_documento_emitido: number;
@@ -23,6 +24,9 @@ interface FirmaRow extends RowDataPacket {
 
 function uploadPath(path: string | null) {
   if (!path) return null;
+  const viewerUrl = pdfViewerUrl(path);
+  if (viewerUrl) return viewerUrl;
+  if (/^https?:\/\//i.test(path)) return path;
   return path.startsWith("/") ? path : `/uploads/${path}`;
 }
 
