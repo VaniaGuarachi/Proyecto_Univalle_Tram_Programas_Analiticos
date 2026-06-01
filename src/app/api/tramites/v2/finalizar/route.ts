@@ -5,6 +5,7 @@ import { join } from "path";
 import { pool } from "@/lib/db";
 import cloudinary from "@/lib/cloudinary";
 import { generateFinalDocumentPdf, type FinalDocumentAttachment } from "@/lib/finalDocumentPdf";
+import { pdfViewerUrl } from "@/lib/pdfUrl";
 
 interface TramiteRow extends RowDataPacket {
   id_estado_actual: number;
@@ -268,7 +269,7 @@ export async function POST(request: Request) {
         success: true,
         codigo,
         id_documento_emitido: documentoId,
-        ruta_pdf_final: finalPdf.publicUrl,
+        ruta_pdf_final: pdfViewerUrl(finalPdf.publicUrl),
         mensajes: [
           "Documento consolidado generado correctamente.",
           "Firmas digitales aplicadas.",

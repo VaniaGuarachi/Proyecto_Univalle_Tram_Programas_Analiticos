@@ -56,6 +56,7 @@ export default function TramiteRevision({ tramite, onBack, onFinalize }: Props) 
   const [sendingToStudent, setSendingToStudent] = useState(false);
   const [emissionStep, setEmissionStep] = useState(0);
   const [dragId, setDragId] = useState<string | number | null>(null);
+  const [previewLoaded, setPreviewLoaded] = useState(false);
   const [message, setMessage] = useState<{ type: "error" | "ok"; text: string } | null>(null);
 
   const emissionSteps = [
@@ -85,6 +86,7 @@ export default function TramiteRevision({ tramite, onBack, onFinalize }: Props) 
         if (!res.ok) throw new Error(json.error || "No se pudo cargar el panel.");
         setData(json);
         setFirmas(json.firmas || []);
+        setPreviewLoaded(Boolean(json.tramite?.ruta_pdf_firmado));
       } catch (error) {
         setMessage({ type: "error", text: error instanceof Error ? error.message : "Error al cargar panel." });
       } finally {
@@ -146,6 +148,7 @@ export default function TramiteRevision({ tramite, onBack, onFinalize }: Props) 
           ruta_pdf_firmado: json.ruta_pdf_final || prev.tramite.ruta_pdf_firmado,
         },
       } : prev);
+      setPreviewLoaded(false);
       setMessage({ type: "ok", text: (json.mensajes || ["Documento consolidado generado correctamente.", "Vista previa lista."]).join(" ") });
     } catch (error) {
       setMessage({ type: "error", text: error instanceof Error ? error.message : "Error de conexión." });
@@ -158,6 +161,9 @@ export default function TramiteRevision({ tramite, onBack, onFinalize }: Props) 
   const enviarAlEstudiante = async () => {
     if (!tramite.id_db || !data?.tramite.ruta_pdf_firmado) {
       return setMessage({ type: "error", text: "Primero debes generar y revisar la vista previa del PDF consolidado." });
+    }
+    if (!previewLoaded) {
+      return setMessage({ type: "error", text: "Espera a que cargue la vista previa del PDF consolidado antes de enviarlo." });
     }
     setSendingToStudent(true);
     setMessage(null);
@@ -241,24 +247,28 @@ export default function TramiteRevision({ tramite, onBack, onFinalize }: Props) 
                   <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Vista previa final</p>
                   <p className="text-xs font-bold text-slate-500">Este es el mismo PDF consolidado que recibe el estudiante.</p>
                 </div>
-                <a href={data.tramite.ruta_pdf_firmado} target="_blank" className="px-4 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">
-                  Abrir PDF
-                </a>
+                <span className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest", previewLoaded ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500")}>
+                  {previewLoaded ? "PDF visible" : "Cargando PDF"}
+                </span>
               </div>
-              <iframe src={`${data.tramite.ruta_pdf_firmado}#toolbar=1`} className="w-full h-[860px] bg-slate-100" />
+              <iframe
+                src={`${data.tramite.ruta_pdf_firmado}#toolbar=1`}
+                onLoad={() => setPreviewLoaded(true)}
+                className="w-full h-[860px] bg-slate-100"
+              />
               <div className="p-5 bg-slate-50 border-t border-slate-100">
                 <button
                   onClick={enviarAlEstudiante}
-                  disabled={sendingToStudent || saving || !data.tramite.ruta_pdf_firmado}
+                  disabled={sendingToStudent || saving || !data.tramite.ruta_pdf_firmado || !previewLoaded}
                   className={cn(
                     "w-full py-5 rounded-xl font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg flex items-center justify-center gap-3",
-                    sendingToStudent || saving || !data.tramite.ruta_pdf_firmado
+                    sendingToStudent || saving || !data.tramite.ruta_pdf_firmado || !previewLoaded
                       ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
                       : "bg-emerald-600 hover:bg-black text-white shadow-emerald-600/25"
                   )}
                 >
                   {sendingToStudent ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-                  {sendingToStudent ? "Enviando al estudiante..." : "Enviar al estudiante"}
+                  {sendingToStudent ? "Enviando al estudiante..." : previewLoaded ? "Enviar al estudiante" : "Esperando vista previa"}
                 </button>
               </div>
             </div>

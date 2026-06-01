@@ -1,8 +1,8 @@
-import { existsSync } from "fs";
 import { join } from "path";
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "mysql2";
 import { pool } from "@/lib/db";
+import { pdfViewerUrl } from "@/lib/pdfUrl";
 
 interface EstadoRow extends RowDataPacket {
   id_estado_tramite: number;
@@ -26,6 +26,16 @@ function publicFilePath(path: string) {
   return normalized.startsWith("uploads/")
     ? join(process.cwd(), "public", normalized)
     : join(process.cwd(), "public", "uploads", normalized);
+}
+
+async function pdfExists(path: string) {
+  if (/^https?:\/\//i.test(path)) {
+    const response = await fetch(path, { method: "HEAD" });
+    return response.ok;
+  }
+
+  const { existsSync } = await import("fs");
+  return existsSync(publicFilePath(path));
 }
 
 async function ensureSchema() {
@@ -83,8 +93,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Primero debes generar el PDF consolidado y revisar la vista previa." }, { status: 400 });
     }
 
-    const pdfPath = publicFilePath(documento.ruta_pdf_firmado);
-    if (!existsSync(pdfPath)) {
+    if (!(await pdfExists(documento.ruta_pdf_firmado))) {
       await connection.rollback();
       return NextResponse.json({ error: "El PDF consolidado no se generó correctamente." }, { status: 400 });
     }
@@ -142,7 +151,11 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       codigo: documento.codigo_verificacion,
-      ruta_pdf_final: documento.ruta_pdf_firmado.startsWith("/") ? documento.ruta_pdf_firmado : `/uploads/${documento.ruta_pdf_firmado}`,
+      ruta_pdf_final: pdfViewerUrl(
+        documento.ruta_pdf_firmado.startsWith("/") || /^https?:\/\//i.test(documento.ruta_pdf_firmado)
+          ? documento.ruta_pdf_firmado
+          : `/uploads/${documento.ruta_pdf_firmado}`
+      ),
       mensaje: "Documento enviado correctamente al estudiante.",
     });
   } catch (error) {

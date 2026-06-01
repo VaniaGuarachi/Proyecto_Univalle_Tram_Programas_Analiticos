@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "mysql2";
 import { pool } from "@/lib/db";
+import { pdfViewerUrl } from "@/lib/pdfUrl";
 
 interface TramiteRow extends RowDataPacket {
   id_tramite: number;
@@ -79,6 +80,7 @@ async function ensureSchema() {
 
 function fileUrl(path: string | null) {
   if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
   return path.startsWith("/") ? path : `/uploads/${path}`;
 }
 
@@ -148,7 +150,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     );
 
     return NextResponse.json({
-      tramite: { ...rows[0], ruta_pdf_firmado: fileUrl(rows[0].ruta_pdf_firmado) },
+      tramite: { ...rows[0], ruta_pdf_firmado: pdfViewerUrl(fileUrl(rows[0].ruta_pdf_firmado)) },
       firmas: firmas.map((f, i) => ({
         id: f.id_firma_documento,
         nombre: f.nombre_firmante,
@@ -160,7 +162,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         y: f.posicion_y ?? 650,
         estado: f.estado,
       })),
-      adjuntos: adjuntos.map((a) => ({ ...a, ruta_archivo: fileUrl(a.ruta_archivo) })),
+      adjuntos: adjuntos.map((a) => ({ ...a, ruta_archivo: pdfViewerUrl(fileUrl(a.ruta_archivo)) })),
       autoridades: autoridades.map((a) => ({
         id: a.id_personal,
         nombre: `${a.nombres} ${a.apellidos}`,
