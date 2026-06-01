@@ -1,0 +1,55 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 392 >>
+stream
+BT
+/F1 18 Tf
+50 780 Td
+(UNIVERSIDAD DEL VALLE) Tj
+/F1 13 Tf
+0 -32 Td
+(FACTURA DE TRAMITE) Tj
+0 -32 Td
+(Factura: FACT-00006) Tj
+0 -32 Td
+(Facturado a: Ana Perez) Tj
+0 -32 Td
+(NIT/CI: 214235345) Tj
+0 -32 Td
+(Razon social: pago) Tj
+0 -32 Td
+(Direccion: No especificada) Tj
+0 -32 Td
+(Correo: ana@gmail.com) Tj
+0 -32 Td
+(Monto total: Bs. 50.00) Tj
+0 -32 Td
+(Fecha: 10/5/2026, 11:04:40 p. m.) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+754
+%%EOF

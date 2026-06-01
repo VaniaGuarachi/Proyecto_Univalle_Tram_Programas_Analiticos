@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+@theme {
+  --color-univalle-primary: #741332;
+  --color-univalle-dark: #35101d;
+  --color-univalle-light: #8f2a45;
+  --color-univalle-accent: #a43a54;
+  --color-univalle-gold: #d9b45f;
+  --color-univalle-action: #8f1830;
+  --color-univalle-hover: #681326;
+  --color-primary: #ab4450;
+  --color-primary-dark: #2d020f;
+  --color-primary-light: #ff9197;
+  --color-primary-softer: #fcc1cc;
+  --color-accent: #2ecc71;
+  --color-accent-dark: #27ae60;
+  --color-accent-light: #5fe08c;
+  --color-danger: #e74c3c;
+  --color-danger-dark: #c0392b;
+  --color-danger-light: #f28b82;
+  --color-warning: #f39c12;
+  --color-warning-dark: #d35400;
+  --color-warning-light: #f7b84d;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+@layer base {
+  html {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 0% 0%, rgba(116, 19, 50, 0.08), transparent 34rem),
+      radial-gradient(circle at 100% 0%, rgba(217, 180, 95, 0.12), transparent 32rem),
+      linear-gradient(180deg, #f7f3f4 0%, #eef1f5 48%, #f8fafc 100%);
+    min-height: 100vh;
+    color: #1f2933;
+  }
+
+  ::selection {
+    background: rgba(116, 19, 50, 0.16);
+    color: #35101d;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: 180ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  thead {
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(241, 245, 249, 0.9));
+  }
+
+  th {
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  tbody tr:hover {
+    background: rgba(116, 19, 50, 0.025);
+  }
+
+  input,
+  textarea,
+  select {
+    border-color: rgba(148, 163, 184, 0.42);
+  }
+}
+
+@layer components {
+  .surface-premium {
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 18px 55px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(18px);
+  }
+
+  .premium-panel {
+    border-radius: 1.35rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9));
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
+  }
+
+  .subtle-grid {
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
+
+@layer utilities {
+  [class*="rounded-[3rem]"],
+  [class*="rounded-[4rem]"] {
+    border-radius: 1.75rem !important;
+  }
+
+  [class*="rounded-[2.5rem]"] {
+    border-radius: 1.5rem !important;
+  }
+
+  [class*="shadow-xl"],
+  [class*="shadow-2xl"] {
+    --tw-shadow-color: rgba(15, 23, 42, 0.12);
+  }
+}
+
+.container-custom {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-custom {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Force hide Next.js turbopack dev indicator */
+nextjs-portal,
+[data-nextjs-toast] {
+  display: none !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(116, 19, 50, 0.22), rgba(116, 19, 50, 0.38));
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 20px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(116, 19, 50, 0.5);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
